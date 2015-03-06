@@ -2,5 +2,5 @@ x = {
     asdfk : function() {
         return xxx;
     },
-        str : 12
+    str : 12
 };
