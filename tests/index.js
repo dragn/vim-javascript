@@ -1,5 +1,4 @@
-var assert  = require('assert'),
-    exec    = require('child_process').execSync,
+var exec    = require('child_process').execSync,
     path    = require('path'),
     fs      = require('fs'),
     diff    = require('ansidiff'),
@@ -24,7 +23,7 @@ function callVim(file, str) {
         COMMANDS,
         file
     );
-    console.log(cmd);
+    // console.log(cmd);
     return exec(cmd, { input : str, timeout: 5000, encoding: 'utf-8' });
 }
 
@@ -32,10 +31,12 @@ function checkStandard(file) {
     var str = fs.readFileSync(file, 'utf-8'),
         result = callVim(file, str);
 
+    // I don't know why, but vim replaces empty lines with spaces :(
+    str = str.replace(/\n\n/g, '\n \n');
+
     if (str != result) {
         console.log(('  ✗ failed ' + file).red);
         console.log(diff.lines(str, result));
-        //assert(false, 'Strings are not equal');
     } else {
         console.log(('  ✓ success ' + file).green);
     }
