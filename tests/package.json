@@ -1,0 +1,15 @@
+{
+  "name": "vim-javascript-tests",
+  "version": "1.0.0",
+  "description": "Regression tests for vim-javascript plugin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Sabelnikov <dsabelnikov@gmail.com>",
+  "private": true,
+  "dependencies": {
+    "ansidiff": "^1.0.0",
+    "colors": "^1.0.3"
+  }
+}
