@@ -5,7 +5,7 @@ var exec    = require('child_process').execSync,
     util    = require('util'),
     color   = require('colors');
 
-var STANDARDS_PATH  = 'standards',
+var INDENT_TESTS_PATH  = 'indent-tests',
     COMMANDS        = [
         'set indentexpr=GetJavascriptIndent()',
         'exe \'norm gg=G\'',
@@ -42,12 +42,12 @@ function checkStandard(file) {
     }
 }
 
-fs.readdir(STANDARDS_PATH, function(err, files) {
+fs.readdir(INDENT_TESTS_PATH, function(err, files) {
     err && console.error('error reading directory "standards"', err);
 
     console.log('\nChecking indent standards\n'.white);
     files.forEach(function(file) {
-        checkStandard(path.join(STANDARDS_PATH, file));
+        checkStandard(path.join(INDENT_TESTS_PATH, file));
     });
     console.log();
 });
