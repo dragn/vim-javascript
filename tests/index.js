@@ -5,15 +5,15 @@ var exec    = require('child_process').execSync,
     util    = require('util'),
     color   = require('colors');
 
-var INDENT_TESTS_PATH  = 'indent-tests',
+var INDENT_TESTS_PATH  = path.join(__dirname, 'indent-tests'),
     COMMANDS        = [
         'set indentexpr=GetJavascriptIndent()',
         'exe \'norm gg=G\'',
         '%print',
         'q!'
     ].join('\n'),
-    SETUP_SCRIPT    = 'test-setup.vim',
-    INDENT_SCRIPT   = '../indent/javascript.vim';
+    SETUP_SCRIPT    = path.join(__dirname, 'test-setup.vim'),
+    INDENT_SCRIPT   = path.join(__dirname, '..', 'indent', 'javascript.vim');
 
 function callVim(file, str) {
     var cmd = util.format(
