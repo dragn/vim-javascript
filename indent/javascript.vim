@@ -49,7 +49,7 @@ let s:skip_expr = "synIDattr(synID(line('.'),col('.'),1),'name') =~ '".s:syng_st
 let s:line_term = '\s*\%(\%(\/\/\).*\)\=$'
 
 " Regex that defines continuation lines, not including (, {, or [.
-let s:continuation_regex = '\%([\\*+/.:]\|\%(<%\)\@<![=-]\|\W[|&?]\|||\|&&\|[^=]=[^=].*,\)' . s:line_term
+let s:continuation_regex = '\%([\\*+/.:]\|\%(<%\)\@<![=-]\|\W[|&?]\|||\|&&\)' . s:line_term
 
 " Regex that defines continuation lines.
 " TODO: this needs to deal with if ...: and so on
@@ -281,6 +281,18 @@ function s:ExitingOneLineScope(lnum)
   return 0
 endfunction
 
+function s:MoveToMatchingBracket(end)
+  let begin = ''
+  if     (end == '}') let begin = '{'
+  elseif (end == ']') let begin = '['
+  elseif (end == ')') let begin = '('
+  endif
+  if (begin != '')
+    return searchpair(begin, '', end, 'bW', s:skip_expr);
+  endif
+  return 0
+endfunction
+
 " 3. GetJavascriptIndent Function {{{1
 " =========================
 
@@ -307,40 +319,14 @@ function GetJavascriptIndent()
   if col > 0 && !s:IsInStringOrComment(v:lnum, col)
     call cursor(v:lnum, col)
 
-    let lvar = s:InMultiVarStatement(v:lnum)
-    if lvar
-      let prevline_contents = s:RemoveTrailingComments(getline(prevline))
+    let bracket = line[col - 1]
 
-      " check for comma first
-      if (line[col - 1] =~ ',')
-        " if the previous line ends in comma or semicolon don't indent
-        if (prevline_contents =~ '[;,]\s*$')
-          return indent(s:GetMSL(line('.'), 0))
-        " get previous line indent, if it's comma first return prevline indent
-        elseif (prevline_contents =~ s:comma_first)
-          return indent(prevline)
-        " otherwise we indent 1 level
-        else
-          return indent(lvar) + &sw
-        endif
-      endif
+    " indent by the line with matching bracket
+    if s:MoveToMatchingBracket(bracket) > 0
+      return indent(line('.'))
     endif
 
-
-    let bs = strpart('(){}[]', stridx(')}]', line[col - 1]) * 2, 2)
-    if searchpair(escape(bs[0], '\['), '', bs[1], 'bW', s:skip_expr) > 0
-      if line[col-1]==')' && col('.') != col('$') - 1
-        let ind = virtcol('.')-1
-      else
-        let ind = indent(s:GetMSL(line('.'), 0))
-      endif
-    endif
     return ind
-  endif
-
-  " If the line is comma first, dedent 1 level
-  if (getline(prevline) =~ s:comma_first)
-    return indent(prevline) - &sw
   endif
 
   if (line =~ s:ternary)
@@ -356,11 +342,6 @@ function GetJavascriptIndent()
     return cindent(v:lnum)
   endif
 
-  " Check for multiple var assignments
-"  let var_indent = s:GetVarIndent(v:lnum)
-"  if var_indent >= 0
-"    return var_indent
-"  endif
 
   " 3.3. Work on the previous line. {{{2
   " -------------------------------
@@ -409,6 +390,12 @@ function GetJavascriptIndent()
     else
       call cursor(v:lnum, vcol)
     end
+  endif
+
+  " Check for multiple var assignments
+  let var_indent = s:GetVarIndent(v:lnum)
+  if var_indents= 0
+    return var_indent
   endif
 
   " 3.4. Work on the MSL line. {{{2

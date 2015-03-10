@@ -1,6 +1,3 @@
 var a = b,
-    c = {
-        d : x,
-        z : h
-    },
+    x = function() {} ,
     e = f;
