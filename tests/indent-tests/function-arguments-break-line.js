@@ -1,4 +1,4 @@
 function funcWithArgs(argumentNumberOne, argumentNumberTwo,
-                      argumentNumberThree) {
+    argumentNumberThree) {
     var x = 1;
 }
