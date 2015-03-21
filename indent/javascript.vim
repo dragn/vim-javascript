@@ -82,6 +82,10 @@ function! s:IndentBlock(start, end, ind, buf)
   let init_line = line('.')
   let init_pos = col('.')
   let ind = a:ind
+
+  let line = getline(v:lnum)
+
+  " go to openning bracket
   while searchpair(a:start, '', a:end, 'bW', s:skip_expr) > 0
     let temp_line = line('.')
     let temp_pos = col('.')
@@ -91,6 +95,11 @@ function! s:IndentBlock(start, end, ind, buf)
       let chained = 1
     endif
 
+    if getline('.') =~ '^\s*switch[ (]'
+        let inside_switch = 1
+    endif
+
+    " go to closing bracket
     if searchpair(a:start, '', a:end, 'W', s:skip_expr) <= 0
       break
     endif
@@ -99,9 +108,14 @@ function! s:IndentBlock(start, end, ind, buf)
     " bracket is not the first char
     if !a:buf[temp_line]
 
-      if !(line('.') == v:lnum && getline('.') =~ '^\s*' . a:end)
+      if !(line('.') == v:lnum && line =~ '^\s*' . a:end)
         " indent by one
         let ind = ind + &sw
+
+        " add another indent in switch blocks (
+        if inside_switch
+          let ind = ind + &sw
+        endif
       endif
 
       " add another one for chained calls
@@ -116,6 +130,7 @@ function! s:IndentBlock(start, end, ind, buf)
     call cursor(temp_line, temp_pos)
   endw
   call cursor(init_line, init_pos)
+
   return ind
 endf
 
@@ -169,6 +184,11 @@ function! GetJavascriptIndent()
   let line = getline(v:lnum)
   if line =~ s:chain_expr
     let ind = ind + &sw
+  endif
+
+  " pull left 'case' and 'default'
+  if line =~ '^\s*\(default\|case\).*:'
+    let ind = ind - &sw
   endif
 
   return ind

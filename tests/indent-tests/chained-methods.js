@@ -4,10 +4,15 @@ program
         ' Otherwise executes the option within the context of today.')
     .action(function() {
 
+        // line comments
+
         var x = [
             sdf : function() {
-                asodfk,
-                retier
+                /**
+                 * Block comment
+                 */
+                asodfk;
+                retier;
             },
             y : [
                 apsdlf,
