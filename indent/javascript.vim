@@ -63,6 +63,8 @@ let s:comma_last = ',\s*$'
 let s:ternary = '^\s\+[?|:]'
 let s:ternary_q = '^\s\+?'
 
+let s:chain_expr = '^\s*[.,]'
+
 " 2. Auxiliary Functions {{{1
 " ======================
 
@@ -83,12 +85,33 @@ function! s:IndentBlock(start, end, ind, buf)
   while searchpair(a:start, '', a:end, 'bW', s:skip_expr) > 0
     let temp_line = line('.')
     let temp_pos = col('.')
+
+    " open bracket line starts with chain character
+    if getline('.') =~ s:chain_expr
+      let chained = 1
+    endif
+
     if searchpair(a:start, '', a:end, 'W', s:skip_expr) <= 0
       break
     endif
-    if !a:buf[temp_line] && !(line('.') == v:lnum && getline('.') =~ '^\s*' . a:end)
-      let ind = ind + &sw
+
+    " check that this line does not close already indented block, and closing
+    " bracket is not the first char
+    if !a:buf[temp_line]
+
+      if !(line('.') == v:lnum && getline('.') =~ '^\s*' . a:end)
+        " indent by one
+        let ind = ind + &sw
+      endif
+
+      " add another one for chained calls
+      if chained
+        let ind = ind + &sw
+      endif
+
+      " remember this line
       let a:buf[temp_line] += 1
+
     endif
     call cursor(temp_line, temp_pos)
   endw
@@ -121,7 +144,6 @@ endf
 
 function! GetJavascriptIndent()
 
-  " Add one indent for every nested block
   let ind = 0
   let buf = []
 
@@ -132,9 +154,10 @@ function! GetJavascriptIndent()
     call add(buf, 0)
   endw
 
-  let ind = s:IndentBlock('{', '}', ind, buf)           " function body
-  let ind = s:IndentBlock('\[', '\]', ind, buf)         " array elements
-  let ind = s:IndentBlock('(', ')', ind, buf) " function arguments
+  " Add one indent for every nested block
+  let ind = s:IndentBlock('{', '}', ind, buf)       " function body
+  let ind = s:IndentBlock('\[', '\]', ind, buf)     " array elements
+  let ind = s:IndentBlock('(', ')', ind, buf)     " function arguments
   " let ind = s:IndentBlockWithClosing('var ', ';', ind, buf)
 
   " Add 1 for multiline comments
@@ -144,7 +167,7 @@ function! GetJavascriptIndent()
 
   " Add one tab for chained calls
   let line = getline(v:lnum)
-  if line =~ '^\s*\.'
+  if line =~ s:chain_expr
     let ind = ind + &sw
   endif
 

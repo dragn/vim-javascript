@@ -3,5 +3,17 @@ program
     .description('If no option given, list the goals for today.' +
         ' Otherwise executes the option within the context of today.')
     .action(function() {
-            command.handleToday.call(program);
-        });
+
+        var x = [
+            sdf : function() {
+                asodfk,
+                retier
+            },
+            y : [
+                apsdlf,
+                aspodfk
+                asodfk
+            ]
+        ];
+        command.handleToday.call(program);
+    });
