@@ -1,6 +1,8 @@
 var x = {
-        gadskfo : asodfk,
-        sdfka : asdokf,
-        pfldf : dfdf
-    },
-    yy = 21;
+    gadskfo : asodfk,
+    sdfka : asdokf,
+    pfldf : dfdf
+};
+
+var yy = 21,
+    xxxx = 23;

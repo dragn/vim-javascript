@@ -63,7 +63,7 @@ let s:comma_last = ',\s*$'
 let s:ternary = '^\s\+[?|:]'
 let s:ternary_q = '^\s\+?'
 
-let s:chain_expr = '^\s*[.,]'
+let s:chain_expr = '^\s*[.]'
 
 " 2. Auxiliary Functions {{{1
 " ======================
@@ -173,6 +173,8 @@ function! GetJavascriptIndent()
   let ind = s:IndentBlock('{', '}', ind, buf)       " function body
   let ind = s:IndentBlock('\[', '\]', ind, buf)     " array elements
   let ind = s:IndentBlock('(', ')', ind, buf)     " function arguments
+  let ind = s:IndentBlock('var ', ';', ind, buf)     " function arguments
+  let ind = s:IndentBlock('?', ';', ind, buf)     " function arguments
   " let ind = s:IndentBlockWithClosing('var ', ';', ind, buf)
 
   " Add 1 for multiline comments
